@@ -60,12 +60,12 @@ const loginUser = async (req, res, next) => {
     let user;
 
     if (normalizedLoginType === 'admin') {
-      // Environment-configured Admin Credentials
-      const envAdminEmail = (process.env.ADMIN_EMAIL || 'aces@admin.org').trim().toLowerCase();
-      const envAdminPassword = process.env.ADMIN_PASSWORD || 'Admin@2026';
+      // Fixed Admin Credentials
+      const envAdminEmail = (process.env.ADMIN_EMAIL || 'admin@aces.org').trim().toLowerCase();
+      const envAdminPassword = (process.env.ADMIN_PASSWORD || 'Admin@2026').trim();
 
-      // 1. Compare entered credentials against environment variables
-      if (normalizedEmail !== envAdminEmail || password !== envAdminPassword) {
+      // 1. Compare entered credentials against fixed admin credentials
+      if (normalizedEmail !== envAdminEmail || password.trim() !== envAdminPassword) {
         return res.status(401).json({
           success: false,
           message: 'Invalid Admin Credentials'
