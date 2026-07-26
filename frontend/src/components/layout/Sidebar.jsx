@@ -33,18 +33,18 @@ const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   const adminMenu = [
-    { title: 'Dashboard', path: '/admin', icon: LayoutDashboard, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Team Lead'] },
-    { title: 'Admin Control', path: '/admin/admins', icon: ShieldCheck, roles: ['Super Admin', 'President'] },
-    { title: 'Members', path: '/admin/members', icon: Users, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Team Lead'] },
-    { title: 'Task Management', path: '/admin/tasks', icon: CheckSquare, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Team Lead'] },
-    { title: 'Attendance Sessions', path: '/admin/attendance/sessions', icon: QrCode, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Team Lead'] },
-    { title: 'Attendance Records', path: '/admin/attendance/records', icon: FileText, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Team Lead'] },
-    { title: 'Club Positions', path: '/admin/positions', icon: UserCheck, roles: ['Super Admin', 'President', 'Vice President'] },
-    { title: 'Events', path: '/admin/events', icon: Calendar, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Team Lead'] },
-    { title: 'Gallery', path: '/admin/gallery', icon: Image, roles: ['Super Admin', 'President', 'Vice President', 'Team Lead'] },
-    { title: 'Analytics', path: '/admin/analytics', icon: BarChart2, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer'] },
-    { title: 'Certificates', path: '/admin/certificates', icon: Award, roles: ['Super Admin', 'President', 'Vice President', 'Secretary'] },
-    { title: 'Activity Logs', path: '/admin/logs', icon: ShieldAlert, roles: ['Super Admin', 'President'] }
+    { title: 'Dashboard', path: '/admin', icon: LayoutDashboard, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Team Lead', 'Faculty Coordinator'] },
+    { title: 'Admin Control', path: '/admin/admins', icon: ShieldCheck, roles: ['Super Admin', 'President', 'Faculty Coordinator'] },
+    { title: 'Members', path: '/admin/members', icon: Users, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Team Lead', 'Faculty Coordinator'] },
+    { title: 'Task Management', path: '/admin/tasks', icon: CheckSquare, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Team Lead', 'Faculty Coordinator'] },
+    { title: 'Attendance Sessions', path: '/admin/attendance/sessions', icon: QrCode, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Team Lead', 'Faculty Coordinator'] },
+    { title: 'Attendance Records', path: '/admin/attendance/records', icon: FileText, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Team Lead', 'Faculty Coordinator'] },
+    { title: 'Club Positions', path: '/admin/positions', icon: UserCheck, roles: ['Super Admin', 'President', 'Vice President', 'Faculty Coordinator'] },
+    { title: 'Events', path: '/admin/events', icon: Calendar, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Team Lead', 'Faculty Coordinator'] },
+    { title: 'Gallery', path: '/admin/gallery', icon: Image, roles: ['Super Admin', 'President', 'Vice President', 'Team Lead', 'Faculty Coordinator'] },
+    { title: 'Analytics', path: '/admin/analytics', icon: BarChart2, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Faculty Coordinator'] },
+    { title: 'Certificates', path: '/admin/certificates', icon: Award, roles: ['Super Admin', 'President', 'Vice President', 'Secretary', 'Faculty Coordinator'] },
+    { title: 'Activity Logs', path: '/admin/logs', icon: ShieldAlert, roles: ['Super Admin', 'President', 'Faculty Coordinator'] }
   ];
 
   const memberMenu = [

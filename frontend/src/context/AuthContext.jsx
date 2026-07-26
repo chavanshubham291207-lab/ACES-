@@ -54,7 +54,17 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('aces_user', JSON.stringify(updatedUser));
   };
 
-  const isAdmin = user && ['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Team Lead'].includes(user.role);
+  const ADMIN_ROLES = [
+    'Super Admin',
+    'President',
+    'Vice President',
+    'Secretary',
+    'Treasurer',
+    'Team Lead',
+    'Faculty Coordinator'
+  ];
+
+  const isAdmin = user && ADMIN_ROLES.includes(user.role);
   const isSuperAdmin = user && user.role === 'Super Admin';
 
   return (

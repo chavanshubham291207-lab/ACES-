@@ -27,10 +27,6 @@ const loginUser = async (req, res, next) => {
   try {
     // 1. Verify MongoDB connection status
     const isConnected = mongoose.connection.readyState === 1;
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`📌 [Auth Debug] MongoDB connected: ${isConnected}`);
-    }
-
     if (!isConnected) {
       console.error('❌ [Auth Error] Database disconnected during login attempt.');
       return res.status(503).json({
@@ -39,58 +35,40 @@ const loginUser = async (req, res, next) => {
       });
     }
 
-    const { email, password } = req.body;
-
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`📌 [Auth Debug] Email Received: '${email}'`);
-    }
+    const { email, password, loginType } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide email and password.' });
     }
 
-    // 2. Normalize email using trim().toLowerCase()
+    // 2. Extract & Validate loginType
+    const normalizedLoginType = (loginType || 'member').toLowerCase().trim();
+    if (!['admin', 'member'].includes(normalizedLoginType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid login type. Must be either "admin" or "member".'
+      });
+    }
+
+    // 3. Normalize email using trim().toLowerCase()
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!isValidEmail(normalizedEmail)) {
       return res.status(400).json({ success: false, message: 'Invalid email format.' });
     }
 
-    // Development Log: Email searched
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`📌 [Auth Debug] Normalized Email: '${normalizedEmail}'`);
-    }
-
-    // 3. Query single MongoDB users collection using normalized email without filtering by role
+    // 4. Query single MongoDB users collection using normalized email without filtering by role
     const user = await User.findOne({ email: normalizedEmail }).populate('team position');
 
     if (!user) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(`❌ [Auth Debug] User found: false | Normalized Email: '${normalizedEmail}'`);
-        // Log all emails currently stored in the users collection for comparison
-        try {
-          const allUsers = await User.find({}).select('email role');
-          console.log(`📌 [Auth Debug] All stored emails: ${JSON.stringify(allUsers.map(u => u.email))}`);
-        } catch (dbErr) {
-          console.error(`❌ [Auth Debug] Error fetching stored emails:`, dbErr.message);
-        }
-      }
       return res.status(404).json({
         success: false,
         message: 'Email not found'
       });
     }
 
-    // Development Log: User found
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`✅ [Auth Debug] User found: true | Name: ${user.name} | Role: ${user.role} | Status: ${user.status}`);
-    }
-
-    // 4. Verify password using bcrypt.compare()
+    // 5. Verify password using bcrypt.compare()
     const isMatch = await bcrypt.compare(password, user.password);
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`📌 [Auth Debug] Password Match Result: ${isMatch}`);
-    }
 
     if (!isMatch) {
       return res.status(401).json({
@@ -99,31 +77,40 @@ const loginUser = async (req, res, next) => {
       });
     }
 
-    // 5. Verify account status
+    // 6. Verify account status
     if (user.isActive === false || (user.status && user.status.toLowerCase() === 'inactive')) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn(`⚠️ [Auth Debug] Account deactivated: '${normalizedEmail}'`);
-      }
       return res.status(403).json({
         success: false,
         message: 'Account deactivated'
       });
     }
 
-    // 6. Generate JWT token & return response
-    const token = generateToken(user._id, user.role);
+    // 7. Role Isolation Enforcement based on loginType
+    const isUserAdmin = ADMIN_ROLES.includes(user.role);
 
-    // Development Log: Login successful
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`🎉 [Auth Debug] Login successful for user: '${normalizedEmail}' (Role: ${user.role})`);
+    if (normalizedLoginType === 'admin' && !isUserAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Member credentials cannot be used for Admin login.'
+      });
     }
+
+    if (normalizedLoginType === 'member' && isUserAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin credentials cannot be used for Member login. Please switch to Admin Login tab.'
+      });
+    }
+
+    // 8. Generate JWT token & return response
+    const token = generateToken(user._id, user.role);
 
     ActivityLog.create({
       user: user._id,
       userName: user.name,
       action: 'Login',
       module: 'Auth',
-      details: `Successful login for ${user.email}`,
+      details: `Successful ${normalizedLoginType} login for ${user.email} (${user.role})`,
       ip: req.ip || req.headers['x-forwarded-for'] || '127.0.0.1'
     }).catch(err => console.error('Activity Log Error:', err.message));
 

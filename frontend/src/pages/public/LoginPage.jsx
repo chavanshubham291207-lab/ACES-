@@ -115,7 +115,7 @@ const LoginPage = () => {
             <div className="p-1 rounded-2xl bg-slate-800/80 border border-slate-700/60 grid grid-cols-2 gap-1">
               <button
                 type="button"
-                onClick={() => { setLoginType('admin'); setError(''); }}
+                onClick={() => { setLoginType('admin'); setError(''); setSuccessMsg(''); }}
                 className={`py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all ${
                   loginType === 'admin'
                     ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
@@ -126,7 +126,7 @@ const LoginPage = () => {
               </button>
               <button
                 type="button"
-                onClick={() => { setLoginType('member'); setError(''); }}
+                onClick={() => { setLoginType('member'); setError(''); setSuccessMsg(''); }}
                 className={`py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all ${
                   loginType === 'member'
                     ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'

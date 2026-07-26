@@ -8,6 +8,7 @@ export const RoleBadge = ({ role }) => {
     'Secretary': 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
     'Treasurer': 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
     'Team Lead': 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30',
+    'Faculty Coordinator': 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/30',
     'Member': 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/30'
   };
 

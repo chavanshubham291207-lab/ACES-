@@ -29,9 +29,10 @@ const initSuperAdmin = async () => {
         { name: 'Secretary', level: 4, permissions: ['attendance', 'minutes', 'events'] },
         { name: 'Treasurer', level: 5, permissions: ['finance', 'points', 'reports'] },
         { name: 'Team Lead', level: 6, permissions: ['manage_team', 'take_attendance'] },
-        { name: 'Member', level: 7, permissions: ['scan_attendance', 'view_events'] }
+        { name: 'Faculty Coordinator', level: 7, permissions: ['all_view', 'reports'] },
+        { name: 'Member', level: 8, permissions: ['scan_attendance', 'view_events'] }
       ]);
-      console.log('✅ 7 System Roles initialized.');
+      console.log('✅ 8 System Roles initialized.');
     }
 
     // 2. Create Initial Super Admin

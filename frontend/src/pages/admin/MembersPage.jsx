@@ -202,7 +202,7 @@ const MembersPage = () => {
           className="px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-white focus:outline-none"
         >
           <option value="">All Roles</option>
-          {['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Team Lead', 'Member'].map(r => (
+          {['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Team Lead', 'Faculty Coordinator', 'Member'].map(r => (
             <option key={r} value={r}>{r}</option>
           ))}
         </select>
@@ -376,7 +376,7 @@ const MembersPage = () => {
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Role</label>
               <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="w-full px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-800 dark:text-white focus:outline-none">
-                {['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Team Lead', 'Member'].map(r => (
+                {['Super Admin', 'President', 'Vice President', 'Secretary', 'Treasurer', 'Team Lead', 'Faculty Coordinator', 'Member'].map(r => (
                   <option key={r} value={r}>{r}</option>
                 ))}
               </select>
