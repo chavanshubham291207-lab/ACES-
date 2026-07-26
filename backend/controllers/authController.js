@@ -57,27 +57,68 @@ const loginUser = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid email format.' });
     }
 
-    // 4. Query single MongoDB users collection using normalized email without filtering by role
-    const user = await User.findOne({ email: normalizedEmail }).populate('team position');
+    let user;
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'Email not found'
-      });
+    if (normalizedLoginType === 'admin') {
+      // Environment-configured Admin Credentials
+      const envAdminEmail = (process.env.ADMIN_EMAIL || 'aces@admin.org').trim().toLowerCase();
+      const envAdminPassword = process.env.ADMIN_PASSWORD || 'Admin@2026';
+
+      // 1. Compare entered credentials against environment variables
+      if (normalizedEmail !== envAdminEmail || password !== envAdminPassword) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid Admin Credentials'
+        });
+      }
+
+      // 2. Fetch admin user document from MongoDB
+      user = await User.findOne({ email: normalizedEmail }).populate('team position');
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'Admin account not found in database.'
+        });
+      }
+
+      // 3. Verify user has an admin role
+      if (!ADMIN_ROLES.includes(user.role)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Account does not have admin permissions.'
+        });
+      }
+    } else {
+      // Member Login Authentication (MongoDB + bcrypt)
+      user = await User.findOne({ email: normalizedEmail }).populate('team position');
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'Email not found'
+        });
+      }
+
+      // Prevent Admin users from logging in via Member Login portal
+      if (ADMIN_ROLES.includes(user.role)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Admin credentials cannot be used for Member login. Please switch to Admin Login tab.'
+        });
+      }
+
+      // Verify bcrypt password
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid password'
+        });
+      }
     }
 
-    // 5. Verify password using bcrypt.compare()
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid password'
-      });
-    }
-
-    // 6. Verify account status
+    // Verify account status
     if (user.isActive === false || (user.status && user.status.toLowerCase() === 'inactive')) {
       return res.status(403).json({
         success: false,
@@ -85,24 +126,7 @@ const loginUser = async (req, res, next) => {
       });
     }
 
-    // 7. Role Isolation Enforcement based on loginType
-    const isUserAdmin = ADMIN_ROLES.includes(user.role);
-
-    if (normalizedLoginType === 'admin' && !isUserAdmin) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. Member credentials cannot be used for Admin login.'
-      });
-    }
-
-    if (normalizedLoginType === 'member' && isUserAdmin) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. Admin credentials cannot be used for Member login. Please switch to Admin Login tab.'
-      });
-    }
-
-    // 8. Generate JWT token & return response
+    // Generate JWT token & return response
     const token = generateToken(user._id, user.role);
 
     ActivityLog.create({
