@@ -172,6 +172,14 @@ const verifyQRToken = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Attendance session has expired.' });
     }
 
+    // --- QR Scan Limit Check (server-side enforcement) ---
+    if (session.scanCount >= session.scanLimit) {
+      return res.status(400).json({
+        success: false,
+        message: 'QR scan limit reached. Attendance session is closed.'
+      });
+    }
+
     // Team restriction check
     if (session.team && req.user.team) {
       const userTeamId = req.user.team._id ? req.user.team._id.toString() : req.user.team.toString();
@@ -257,6 +265,20 @@ const submitAttendance = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Attendance session has expired.' });
     }
 
+    // --- QR Scan Limit Check (server-side enforcement) ---
+    // Re-fetch the latest scanCount atomically to prevent race conditions
+    const freshSession = await AttendanceSession.findById(session._id);
+    if (freshSession.scanCount >= freshSession.scanLimit) {
+      // Auto-close the session if it isn't already
+      if (freshSession.isActive) {
+        await AttendanceSession.findByIdAndUpdate(session._id, { isActive: false });
+      }
+      return res.status(400).json({
+        success: false,
+        message: 'QR scan limit reached. Attendance session is closed.'
+      });
+    }
+
     const existing = await Attendance.findOne({ session: session._id, member: req.user._id });
     if (existing) {
       return res.status(400).json({ success: false, message: 'You have already marked attendance for this session!' });
@@ -289,6 +311,16 @@ const submitAttendance = async (req, res, next) => {
 
     const pointsAwarded = status === 'Present' ? 15 : 10;
     await User.findByIdAndUpdate(req.user._id, { $inc: { contributionPoints: pointsAwarded } });
+
+    // --- Increment scanCount and auto-close session if limit is reached ---
+    const updatedSession = await AttendanceSession.findByIdAndUpdate(
+      session._id,
+      { $inc: { scanCount: 1 } },
+      { new: true }
+    );
+    if (updatedSession && updatedSession.scanCount >= updatedSession.scanLimit) {
+      await AttendanceSession.findByIdAndUpdate(session._id, { isActive: false });
+    }
 
     res.status(201).json({
       success: true,

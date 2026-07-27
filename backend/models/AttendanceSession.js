@@ -16,7 +16,10 @@ const attendanceSessionSchema = new mongoose.Schema({
   description: { type: String, default: '' },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   isActive: { type: Boolean, default: true },
-  isDeleted: { type: Boolean, default: false }
+  isDeleted: { type: Boolean, default: false },
+  // QR scan limit enforcement (server-side only)
+  scanLimit: { type: Number, default: 300, immutable: true }, // Fixed max successful scans per session
+  scanCount: { type: Number, default: 0 }                     // Incremented on each successful attendance submission
 }, { timestamps: true });
 
 module.exports = mongoose.model('AttendanceSession', attendanceSessionSchema);
